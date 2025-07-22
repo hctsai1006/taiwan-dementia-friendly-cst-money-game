@@ -6,14 +6,21 @@ let currentGameState = {
     userAnswers: [],
     difficulty: 'normal',
     startTime: null,
-    gameData: taiwanGameData
+    gameData: null
 };
 
 // 初始化遊戲
 document.addEventListener('DOMContentLoaded', function() {
-    initializeGame();
-    setupEventListeners();
-    showScreen('welcomeScreen');
+    // 確保 taiwanGameData 已載入
+    if (typeof taiwanGameData !== 'undefined') {
+        currentGameState.gameData = taiwanGameData;
+        initializeGame();
+        setupEventListeners();
+        showScreen('welcomeScreen');
+    } else {
+        console.error('遊戲數據未正確載入');
+        alert('遊戲載入失敗，請重新整理頁面');
+    }
 });
 
 // 初始化遊戲
@@ -28,19 +35,35 @@ function initializeGame() {
         gameData: taiwanGameData
     };
     
-    // 設定進度條
     updateProgress(0);
-    
     console.log('台灣本土化失智友善遊戲已初始化');
 }
 
 // 設定事件監聽器
 function setupEventListeners() {
+    // 主要按鈕事件
+    document.getElementById('startGameBtn').addEventListener('click', startIntroduction);
+    document.getElementById('startMainGameBtn').addEventListener('click', startMainGame);
+    document.getElementById('hintButton').addEventListener('click', showHint);
+    document.getElementById('revealButton').addEventListener('click', revealAnswer);
+    document.getElementById('nextButton').addEventListener('click', nextItem);
+    document.getElementById('continueBtn').addEventListener('click', continueToNext);
+    document.getElementById('restartBtn').addEventListener('click', restartGame);
+    document.getElementById('summaryBtn').addEventListener('click', showSummary);
+    document.getElementById('backToCompletionBtn').addEventListener('click', backToCompletion);
+    
+    // 音效控制
+    document.getElementById('audioToggle').addEventListener('click', toggleAudio);
+    document.getElementById('playMemoryBtn').addEventListener('click', playMemoryPrompt);
+    document.getElementById('playStoryBtn').addEventListener('click', playMemoryStory);
+    
     // 音量控制
     const volumeSlider = document.getElementById('volumeSlider');
     if (volumeSlider) {
         volumeSlider.addEventListener('input', function(e) {
-            GameAudio.volume = e.target.value / 100;
+            if (typeof GameAudio !== 'undefined') {
+                GameAudio.volume = e.target.value / 100;
+            }
         });
     }
 
@@ -56,63 +79,27 @@ function setupEventListeners() {
     document.addEventListener('keydown', handleKeyPress);
 }
 
-// 鍵盤操作
-function handleKeyPress(event) {
-    switch(event.key) {
-        case 'Enter':
-        case ' ':
-            event.preventDefault();
-            handleEnterKey();
-            break;
-        case 'Escape':
-            event.preventDefault();
-            if (confirm('確定要重新開始嗎？')) {
-                restartGame();
-            }
-            break;
-    }
-}
-
-function handleEnterKey() {
-    const currentScreen = document.querySelector('.screen.active').id;
-    
-    switch(currentScreen) {
-        case 'welcomeScreen':
-            startIntroduction();
-            break;
-        case 'introScreen':
-            startGame();
-            break;
-        case 'answerScreen':
-            continueToNext();
-            break;
-    }
-}
-
 // 螢幕切換
 function showScreen(screenId) {
-    // 隱藏所有螢幕
     document.querySelectorAll('.screen').forEach(screen => {
         screen.classList.remove('active');
     });
     
-    // 顯示指定螢幕
     const targetScreen = document.getElementById(screenId);
     if (targetScreen) {
         targetScreen.classList.add('active');
     }
     
-    // 播放切換音效
-    GameAudio.playClick();
+    playClickSound();
 }
 
 // 更新進度條
 function updateProgress(percentage) {
-    const progressBar = document.getElementById('progressBar');
+    const progressFill = document.getElementById('progressFill');
     const progressText = document.getElementById('progressText');
     
-    if (progressBar) {
-        progressBar.style.setProperty('--progress', `${percentage}%`);
+    if (progressFill) {
+        progressFill.style.width = percentage + '%';
     }
     
     if (progressText) {
@@ -126,52 +113,72 @@ function updateProgress(percentage) {
     }
 }
 
-// 開始介紹
+// 音效函數
+function playClickSound() {
+    if (typeof GameAudio !== 'undefined') {
+        GameAudio.playClick();
+    }
+}
+
+function playSuccessSound() {
+    if (typeof GameAudio !== 'undefined') {
+        GameAudio.playSuccess();
+    }
+}
+
+function playErrorSound() {
+    if (typeof GameAudio !== 'undefined') {
+        GameAudio.playError();
+    }
+}
+
+function speakText(text) {
+    if (typeof GameAudio !== 'undefined') {
+        GameAudio.speak(text);
+    }
+}
+
+// 遊戲流程函數
 function startIntroduction() {
-    GameAudio.speak('歡迎來到懷舊金錢遊戲');
+    speakText('歡迎來到懷舊金錢遊戲');
     updateProgress(10);
     showScreen('introScreen');
 }
 
-// 開始遊戲
-function startGame() {
+function startMainGame() {
     currentGameState.startTime = new Date();
     currentGameState.currentItemIndex = 0;
     currentGameState.correctAnswers = 0;
     currentGameState.totalScore = 0;
     currentGameState.userAnswers = [];
     
-    GameAudio.speak('遊戲開始！');
+    speakText('遊戲開始！');
     updateProgress(15);
     showScreen('gameScreen');
     loadCurrentItem();
 }
 
-// 載入當前物品
 function loadCurrentItem() {
+    if (!currentGameState.gameData || !currentGameState.gameData.items) {
+        console.error('遊戲數據不完整');
+        return;
+    }
+    
     const item = currentGameState.gameData.items[currentGameState.currentItemIndex];
     const totalItems = currentGameState.gameData.settings.totalItems;
     
-    // 更新進度
     const progress = 15 + (currentGameState.currentItemIndex / totalItems) * 70;
     updateProgress(progress);
     
-    // 更新物品資訊
     updateItemDisplay(item);
-    
-    // 生成價格選項
     generatePriceOptions(item);
-    
-    // 重設按鈕狀態
     resetButtons();
     
-    // 語音介紹物品
     setTimeout(() => {
-        GameAudio.speak(`第${currentGameState.currentItemIndex + 1}項物品：${item.name}`);
+        speakText(`第${currentGameState.currentItemIndex + 1}項物品：${item.name}`);
     }, 500);
 }
 
-// 更新物品顯示
 function updateItemDisplay(item) {
     document.getElementById('currentItemNumber').textContent = currentGameState.currentItemIndex + 1;
     document.getElementById('totalItems').textContent = currentGameState.gameData.settings.totalItems;
@@ -185,7 +192,6 @@ function updateItemDisplay(item) {
     document.getElementById('memoryPrompt').textContent = item.memoryPrompt;
 }
 
-// 生成價格選項
 function generatePriceOptions(item) {
     const optionsContainer = document.getElementById('priceOptions');
     optionsContainer.innerHTML = '';
@@ -194,35 +200,29 @@ function generatePriceOptions(item) {
         const optionElement = document.createElement('div');
         optionElement.className = 'price-option';
         optionElement.textContent = `${price} 元`;
-        optionElement.onclick = () => selectPrice(price, item.oldPrice);
+        optionElement.addEventListener('click', () => selectPrice(price, item.oldPrice, optionElement));
         optionsContainer.appendChild(optionElement);
     });
 }
 
-// 重設按鈕狀態
 function resetButtons() {
     document.getElementById('hintButton').style.display = 'block';
     document.getElementById('revealButton').style.display = 'none';
     document.getElementById('nextButton').style.display = 'none';
 }
 
-// 選擇價格
-function selectPrice(selectedPrice, correctPrice) {
-    GameAudio.playClick();
+function selectPrice(selectedPrice, correctPrice, element) {
+    playClickSound();
     
-    // 移除之前的選中狀態
     document.querySelectorAll('.price-option').forEach(option => {
         option.classList.remove('selected', 'correct', 'incorrect');
-        option.onclick = null; // 禁用點擊
+        option.style.pointerEvents = 'none';
     });
     
-    // 標記選中的選項
-    event.target.classList.add('selected');
+    element.classList.add('selected');
     
-    // 檢查答案
     const isCorrect = selectedPrice === correctPrice;
     
-    // 記錄答案
     currentGameState.userAnswers.push({
         itemId: currentGameState.gameData.items[currentGameState.currentItemIndex].id,
         selectedPrice: selectedPrice,
@@ -235,80 +235,66 @@ function selectPrice(selectedPrice, correctPrice) {
         const difficultyMultiplier = currentGameState.gameData.settings.difficultyLevels[currentGameState.difficulty].scoreMultiplier;
         currentGameState.totalScore += Math.round(10 * difficultyMultiplier);
         
-        event.target.classList.add('correct');
-        GameAudio.playSuccess();
-        GameAudio.speak('答對了！真棒！');
+        element.classList.add('correct');
+        playSuccessSound();
+        speakText('答對了！真棒！');
     } else {
-        event.target.classList.add('incorrect');
+        element.classList.add('incorrect');
         
-        // 顯示正確答案
         document.querySelectorAll('.price-option').forEach(option => {
             if (option.textContent === `${correctPrice} 元`) {
                 option.classList.add('correct');
             }
         });
         
-        GameAudio.playError();
-        GameAudio.speak('不太對喔，讓我們看看正確答案');
+        playErrorSound();
+        speakText('不太對喔，讓我們看看正確答案');
     }
     
-    // 更新分數顯示
     document.getElementById('currentScore').textContent = currentGameState.totalScore;
     
-    // 顯示查看答案按鈕
     setTimeout(() => {
         document.getElementById('hintButton').style.display = 'none';
         document.getElementById('revealButton').style.display = 'block';
     }, 1500);
 }
 
-// 顯示提示
 function showHint() {
     const item = currentGameState.gameData.items[currentGameState.currentItemIndex];
-    GameAudio.playClick();
-    GameAudio.speak(`提示：${item.hint}`);
-    
-    // 顯示提示對話框
+    playClickSound();
+    speakText(`提示：${item.hint}`);
     alert(`💡 提示：${item.hint}`);
 }
 
-// 播放記憶提示語音
 function playMemoryPrompt() {
     const item = currentGameState.gameData.items[currentGameState.currentItemIndex];
-    GameAudio.speak(item.memoryPrompt);
+    speakText(item.memoryPrompt);
 }
 
-// 播放記憶故事語音
 function playMemoryStory() {
     const item = currentGameState.gameData.items[currentGameState.currentItemIndex];
-    GameAudio.speak(item.memoryStory);
+    speakText(item.memoryStory);
 }
 
-// 揭曉答案
 function revealAnswer() {
-    GameAudio.playClick();
+    playClickSound();
     const item = currentGameState.gameData.items[currentGameState.currentItemIndex];
     
-    // 設定答案畫面內容
     setupAnswerScreen(item);
-    
     showScreen('answerScreen');
-    GameAudio.speak(`答案是${item.oldPrice}元`);
+    speakText(`答案是${item.oldPrice}元`);
 }
 
-// 設定答案畫面
 function setupAnswerScreen(item) {
     document.getElementById('oldPrice').textContent = `${item.oldPrice} 元`;
     
     if (typeof item.newPrice === 'number') {
         document.getElementById('newPrice').textContent = `${item.newPrice} 元`;
         
-        // 計算價格變化
         const multiplier = (item.newPrice / item.oldPrice).toFixed(1);
         const percentage = Math.round(((item.newPrice - item.oldPrice) / item.oldPrice) * 100);
         document.getElementById('priceIncrease').textContent = `漲了 ${multiplier} 倍 (${percentage}%)`;
         
-        // 生成等價比較
         generateEquivalentComparison(item);
     } else {
         document.getElementById('newPrice').textContent = item.newPrice;
@@ -319,7 +305,6 @@ function setupAnswerScreen(item) {
     document.getElementById('memoryStory').textContent = item.memoryStory;
 }
 
-// 生成等價比較
 function generateEquivalentComparison(item) {
     const referenceItems = currentGameState.gameData.equivalentComparisons.referenceItems;
     const randomRef = referenceItems[Math.floor(Math.random() * referenceItems.length)];
@@ -331,9 +316,12 @@ function generateEquivalentComparison(item) {
     }
 }
 
-// 繼續到下一個
 function continueToNext() {
-    GameAudio.playClick();
+    nextItem();
+}
+
+function nextItem() {
+    playClickSound();
     currentGameState.currentItemIndex++;
     
     if (currentGameState.currentItemIndex < currentGameState.gameData.settings.totalItems) {
@@ -344,24 +332,20 @@ function continueToNext() {
     }
 }
 
-// 顯示完成畫面
 function showCompletionScreen() {
     updateProgress(100);
     
-    // 設定最終成績
     document.getElementById('finalScore').textContent = currentGameState.totalScore;
     document.getElementById('correctCount').textContent = currentGameState.correctAnswers;
     
-    // 決定成就
     const achievement = determineAchievement();
     document.getElementById('achievementTitle').textContent = achievement.name;
     document.getElementById('achievementDescription').textContent = achievement.description;
     
     showScreen('completionScreen');
-    GameAudio.speak(`遊戲完成！您總共答對了${currentGameState.correctAnswers}題，獲得${achievement.name}稱號`);
+    speakText(`遊戲完成！您總共答對了${currentGameState.correctAnswers}題，獲得${achievement.name}稱號`);
 }
 
-// 決定成就
 function determineAchievement() {
     const achievements = currentGameState.gameData.achievements;
     const score = currentGameState.correctAnswers;
@@ -375,7 +359,6 @@ function determineAchievement() {
     }
 }
 
-// 顯示總結
 function showSummary() {
     const summaryList = document.getElementById('itemSummaryList');
     summaryList.innerHTML = '';
@@ -402,31 +385,62 @@ function showSummary() {
     showScreen('summaryScreen');
 }
 
-// 返回完成畫面
 function backToCompletion() {
     showScreen('completionScreen');
 }
 
-// 重新開始遊戲
 function restartGame() {
-    GameAudio.playClick();
+    playClickSound();
     initializeGame();
     showScreen('welcomeScreen');
-    GameAudio.speak('歡迎再次遊玩');
+    speakText('歡迎再次遊玩');
 }
 
-// 音效控制
 function toggleAudio() {
-    GameAudio.enabled = !GameAudio.enabled;
-    const toggleBtn = document.getElementById('audioToggle');
+    if (typeof GameAudio !== 'undefined') {
+        GameAudio.enabled = !GameAudio.enabled;
+        const toggleBtn = document.getElementById('audioToggle');
+        
+        if (GameAudio.enabled) {
+            toggleBtn.textContent = '🔊';
+            toggleBtn.classList.remove('muted');
+            GameAudio.speak('音效已開啟');
+        } else {
+            toggleBtn.textContent = '🔇';
+            toggleBtn.classList.add('muted');
+        }
+    }
+}
+
+function handleKeyPress(event) {
+    switch(event.key) {
+        case 'Enter':
+        case ' ':
+            event.preventDefault();
+            handleEnterKey();
+            break;
+        case 'Escape':
+            event.preventDefault();
+            if (confirm('確定要重新開始嗎？')) {
+                restartGame();
+            }
+            break;
+    }
+}
+
+function handleEnterKey() {
+    const currentScreen = document.querySelector('.screen.active').id;
     
-    if (GameAudio.enabled) {
-        toggleBtn.textContent = '🔊';
-        toggleBtn.classList.remove('muted');
-        GameAudio.speak('音效已開啟');
-    } else {
-        toggleBtn.textContent = '🔇';
-        toggleBtn.classList.add('muted');
+    switch(currentScreen) {
+        case 'welcomeScreen':
+            startIntroduction();
+            break;
+        case 'introScreen':
+            startMainGame();
+            break;
+        case 'answerScreen':
+            continueToNext();
+            break;
     }
 }
 
@@ -436,25 +450,17 @@ window.addEventListener('error', function(event) {
     alert('系統發生問題，請重新整理頁面');
 });
 
-// 防止意外離開
 window.addEventListener('beforeunload', function(event) {
-    if (currentGameState.currentItemIndex > 0 && currentGameState.currentItemIndex < currentGameState.gameData.settings.totalItems) {
+    if (currentGameState.currentItemIndex > 0 && 
+        currentGameState.currentItemIndex < currentGameState.gameData.settings.totalItems) {
         event.preventDefault();
         event.returnValue = '遊戲進行中，確定要離開嗎？';
     }
 });
 
-// 響應式設計調整
 window.addEventListener('resize', function() {
-    // 確保移動設備上的正確顯示
     const vh = window.innerHeight * 0.01;
     document.documentElement.style.setProperty('--vh', `${vh}px`);
 });
 
-// 觸控支援
 document.addEventListener('touchstart', function() {}, {passive: true});
-
-// 導出給其他模組使用
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { currentGameState, showScreen, restartGame };
-}
