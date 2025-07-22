@@ -17,7 +17,9 @@
             <h1 class="main-title">🏮 懷舊金錢遊戲</h1>
             <p class="subtitle">找回那些年的美好回憶</p>
             <div class="progress-container">
-                <div class="progress-bar" id="progressBar"></div>
+                <div class="progress-bar" id="progressBar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
                 <span class="progress-text" id="progressText">準備開始</span>
             </div>
         </header>
@@ -38,7 +40,7 @@
                     這裡有 12 樣台灣人共同的美好記憶<br>
                     讓我們一起重溫那些年的物價變化吧！
                 </p>
-                <button class="mega-button primary-button" onclick="startIntroduction()">
+                <button class="mega-button primary-button" id="startGameBtn">
                     <span class="button-text">開始遊戲</span>
                     <span class="button-icon">▶️</span>
                 </button>
@@ -79,7 +81,7 @@
                         <p>一起聊聊美好往事</p>
                     </div>
                 </div>
-                <button class="mega-button primary-button" onclick="startGame()">
+                <button class="mega-button primary-button" id="startMainGameBtn">
                     我了解了，開始吧！
                 </button>
             </div>
@@ -112,7 +114,7 @@
                 <div class="memory-prompt-section">
                     <h4 class="section-title">💭 您還記得嗎？</h4>
                     <p id="memoryPrompt" class="memory-text"></p>
-                    <button class="audio-button" onclick="playMemoryPrompt()">🔊 聽一遍</button>
+                    <button class="audio-button" id="playMemoryBtn">🔊 聽一遍</button>
                 </div>
 
                 <div class="price-guessing-game">
@@ -121,13 +123,13 @@
                 </div>
 
                 <div class="game-actions">
-                    <button id="hintButton" class="mega-button secondary-button" onclick="showHint()">
+                    <button id="hintButton" class="mega-button secondary-button">
                         💡 需要提示
                     </button>
-                    <button id="revealButton" class="mega-button primary-button" onclick="revealAnswer()" style="display: none;">
+                    <button id="revealButton" class="mega-button primary-button" style="display: none;">
                         🎉 看答案
                     </button>
-                    <button id="nextButton" class="mega-button success-button" onclick="nextItem()" style="display: none;">
+                    <button id="nextButton" class="mega-button success-button" style="display: none;">
                         下一個 ➡️
                     </button>
                 </div>
@@ -177,11 +179,11 @@
                 <div class="memory-story-section">
                     <h4 class="section-title">💕 時代回憶</h4>
                     <div class="memory-story" id="memoryStory"></div>
-                    <button class="audio-button" onclick="playMemoryStory()">🔊 聽故事</button>
+                    <button class="audio-button" id="playStoryBtn">🔊 聽故事</button>
                 </div>
 
                 <div class="answer-actions">
-                    <button class="mega-button primary-button" onclick="continueToNext()">
+                    <button class="mega-button primary-button" id="continueBtn">
                         <span class="button-text">繼續下一個</span>
                         <span class="button-icon">➡️</span>
                     </button>
@@ -232,11 +234,11 @@
                 </div>
 
                 <div class="completion-actions">
-                    <button class="mega-button primary-button" onclick="restartGame()">
+                    <button class="mega-button primary-button" id="restartBtn">
                         <span class="button-text">重新開始</span>
                         <span class="button-icon">🔄</span>
                     </button>
-                    <button class="mega-button secondary-button" onclick="showSummary()">
+                    <button class="mega-button secondary-button" id="summaryBtn">
                         <span class="button-text">查看總結</span>
                         <span class="button-icon">📋</span>
                     </button>
@@ -249,7 +251,7 @@
             <div class="summary-content">
                 <h2>🎯 活動總結</h2>
                 <div id="itemSummaryList" class="summary-list"></div>
-                <button class="mega-button primary-button" onclick="backToCompletion()">
+                <button class="mega-button primary-button" id="backToCompletionBtn">
                     返回完成頁面
                 </button>
             </div>
@@ -258,15 +260,13 @@
 
     <!-- 音效控制 -->
     <div class="audio-controls">
-        <button id="audioToggle" class="audio-toggle-btn" onclick="toggleAudio()">
-            🔊
-        </button>
+        <button id="audioToggle" class="audio-toggle-btn">🔊</button>
         <div class="volume-control">
             <input type="range" id="volumeSlider" min="0" max="100" value="70" class="volume-slider">
         </div>
     </div>
 
-    <!-- 載入 JavaScript -->
+    <!-- 載入遊戲數據和主程式 -->
     <script src="gameData.js"></script>
     <script src="app.js"></script>
 </body>
