@@ -2,207 +2,272 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>懷舊金錢遊戲 - 失智友善版</title>
-    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>懷舊金錢遊戲 - 台灣本土版</title>
+    <link rel="stylesheet" href="styles.css">
+    <meta name="description" content="專為台灣失智症長者設計的認知刺激治療活動">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="container">
+    <div class="app-container">
         <!-- 標題區域 -->
-        <header class="header">
-            <h1 class="main-title">🎯 懷舊金錢遊戲</h1>
-            <p class="subtitle">讓我們一起回憶那些年的物價</p>
-            <div class="progress-bar">
-                <div class="progress-fill" id="progressBar"></div>
+        <header class="app-header">
+            <h1 class="main-title">🏮 懷舊金錢遊戲</h1>
+            <p class="subtitle">找回那些年的美好回憶</p>
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+                <span class="progress-text" id="progressText">準備開始</span>
             </div>
         </header>
 
         <!-- 歡迎畫面 -->
         <section id="welcomeScreen" class="screen active">
             <div class="welcome-content">
-                <div class="welcome-icon">🏮</div>
+                <div class="welcome-animation">
+                    <div class="nostalgic-icon">🎭</div>
+                    <div class="floating-elements">
+                        <span class="float-item">🏮</span>
+                        <span class="float-item">🎯</span>
+                        <span class="float-item">🎪</span>
+                    </div>
+                </div>
                 <h2>歡迎來到懷舊時光</h2>
-                <p>這裡有 8 樣台灣人共同的回憶</p>
-                <p>讓我們一起猜猜它們的價格吧！</p>
-                <button class="big-button start-btn" onclick="startGame()">
-                    <span>開始遊戲</span>
-                    <div class="button-icon">▶️</div>
+                <p class="welcome-description">
+                    這裡有 12 樣台灣人共同的美好記憶<br>
+                    讓我們一起重溫那些年的物價變化吧！
+                </p>
+                <button class="mega-button primary-button" onclick="startIntroduction()">
+                    <span class="button-text">開始遊戲</span>
+                    <span class="button-icon">▶️</span>
                 </button>
+                <div class="difficulty-selector">
+                    <label for="difficultyLevel">選擇難度：</label>
+                    <select id="difficultyLevel" class="difficulty-dropdown">
+                        <option value="easy">輕鬆模式</option>
+                        <option value="normal" selected>標準模式</option>
+                        <option value="hard">挑戰模式</option>
+                    </select>
+                </div>
             </div>
         </section>
 
-        <!-- 遊戲說明 -->
-        <section id="instructionScreen" class="screen">
-            <div class="instruction-content">
+        <!-- 介紹畫面 -->
+        <section id="introScreen" class="screen">
+            <div class="intro-content">
                 <h2>🎮 遊戲說明</h2>
-                <div class="instruction-steps">
-                    <div class="step">
-                        <div class="step-number">1</div>
-                        <p>看看這些熟悉的物品</p>
+                <div class="instruction-grid">
+                    <div class="instruction-card">
+                        <div class="instruction-number">1</div>
+                        <h3>看物品</h3>
+                        <p>欣賞熟悉的懷舊物品</p>
                     </div>
-                    <div class="step">
-                        <div class="step-number">2</div>
-                        <p>猜猜 1970 年的價格</p>
+                    <div class="instruction-card">
+                        <div class="instruction-number">2</div>
+                        <h3>回憶價格</h3>
+                        <p>猜猜以前的價格是多少</p>
                     </div>
-                    <div class="step">
-                        <div class="step-number">3</div>
-                        <p>比較現在的價格</p>
+                    <div class="instruction-card">
+                        <div class="instruction-number">3</div>
+                        <h3>比較今昔</h3>
+                        <p>看看現在價格差多少</p>
                     </div>
-                    <div class="step">
-                        <div class="step-number">4</div>
-                        <p>分享你的回憶</p>
+                    <div class="instruction-card">
+                        <div class="instruction-number">4</div>
+                        <h3>分享回憶</h3>
+                        <p>一起聊聊美好往事</p>
                     </div>
                 </div>
-                <button class="big-button continue-btn" onclick="showFirstItem()">
+                <button class="mega-button primary-button" onclick="startGame()">
                     我了解了，開始吧！
                 </button>
             </div>
         </section>
 
-        <!-- 物品展示區 -->
+        <!-- 遊戲主畫面 -->
         <section id="gameScreen" class="screen">
             <div class="game-content">
-                <div class="item-counter">
-                    第 <span id="currentItemNumber">1</span> / 8 項
-                </div>
-                
-                <div class="item-card" id="itemCard">
-                    <div class="item-image">
-                        <img id="itemImg" src="" alt="">
-                        <div class="item-glow"></div>
+                <div class="game-header">
+                    <div class="item-counter">
+                        第 <span id="currentItemNumber">1</span> / <span id="totalItems">12</span> 項
                     </div>
-                    <h3 id="itemName" class="item-name"></h3>
-                    <p id="itemDescription" class="item-description"></p>
+                    <div class="score-display">
+                        得分：<span id="currentScore">0</span>
+                    </div>
                 </div>
 
-                <div class="memory-section">
-                    <h4>💭 你還記得嗎？</h4>
-                    <p id="memoryPrompt"></p>
+                <div class="item-showcase">
+                    <div class="item-image-container">
+                        <img id="itemImage" src="" alt="" class="item-image">
+                        <div class="image-glow"></div>
+                    </div>
+                    <div class="item-info">
+                        <h3 id="itemName" class="item-title"></h3>
+                        <p id="itemDescription" class="item-desc"></p>
+                        <div class="era-tag" id="itemEra"></div>
+                    </div>
                 </div>
 
-                <div class="price-game">
-                    <h4>🤔 猜猜 1970 年的價格</h4>
-                    <div class="price-options" id="priceOptions"></div>
+                <div class="memory-prompt-section">
+                    <h4 class="section-title">💭 您還記得嗎？</h4>
+                    <p id="memoryPrompt" class="memory-text"></p>
+                    <button class="audio-button" onclick="playMemoryPrompt()">🔊 聽一遍</button>
                 </div>
 
-                <div class="action-buttons">
-                    <button class="big-button secondary-btn" onclick="showHint()" id="hintBtn">
+                <div class="price-guessing-game">
+                    <h4 class="section-title">🤔 猜猜當年的價格</h4>
+                    <div id="priceOptions" class="price-options-grid"></div>
+                </div>
+
+                <div class="game-actions">
+                    <button id="hintButton" class="mega-button secondary-button" onclick="showHint()">
                         💡 需要提示
                     </button>
-                    <button class="big-button primary-btn" onclick="revealAnswer()" id="revealBtn" style="display:none;">
+                    <button id="revealButton" class="mega-button primary-button" onclick="revealAnswer()" style="display: none;">
                         🎉 看答案
                     </button>
-                    <button class="big-button continue-btn" onclick="nextItem()" id="nextBtn" style="display:none;">
+                    <button id="nextButton" class="mega-button success-button" onclick="nextItem()" style="display: none;">
                         下一個 ➡️
                     </button>
                 </div>
             </div>
         </section>
 
-        <!-- 答案展示區 -->
+        <!-- 答案展示畫面 -->
         <section id="answerScreen" class="screen">
             <div class="answer-content">
                 <div class="answer-header">
-                    <div class="celebration">🎊</div>
-                    <h3>答案揭曉</h3>
+                    <div class="celebration-animation">
+                        <div class="confetti"></div>
+                        <div class="celebration-text">🎊 答案揭曉</div>
+                    </div>
                 </div>
 
-                <div class="price-comparison">
-                    <div class="price-card old-price">
-                        <h4>1970 年</h4>
-                        <div class="price" id="oldPrice"></div>
+                <div class="price-comparison-card">
+                    <div class="price-then">
+                        <h4>民國 60 年代</h4>
+                        <div class="price-value" id="oldPrice"></div>
                         <p>那時候的價格</p>
                     </div>
                     
-                    <div class="price-arrow">➡️</div>
+                    <div class="price-arrow">
+                        <span class="arrow-icon">➡️</span>
+                        <span class="arrow-text">時光流轉</span>
+                    </div>
                     
-                    <div class="price-card new-price">
-                        <h4>2025 年</h4>
-                        <div class="price" id="newPrice"></div>
+                    <div class="price-now">
+                        <h4>民國 114 年</h4>
+                        <div class="price-value" id="newPrice"></div>
                         <p>現在的價格</p>
                     </div>
                 </div>
 
-                <div class="price-change">
-                    <p>價格變化：<span id="priceChange"></span></p>
-                </div>
-
-                <div class="memory-sharing">
-                    <h4>💕 美好回憶</h4>
-                    <p id="memoryText"></p>
-                </div>
-
-                <button class="big-button continue-btn" onclick="continueGame()">
-                    繼續下一個
-                </button>
-            </div>
-        </section>
-
-        <!-- 結束畫面 -->
-        <section id="endScreen" class="screen">
-            <div class="end-content">
-                <div class="celebration-big">🎉</div>
-                <h2>恭喜完成！</h2>
-                <p>您已經回顧了 8 個懷舊物品</p>
-                
-                <div class="summary">
-                    <h3>🏆 遊戲總結</h3>
-                    <div class="summary-stats">
-                        <div class="stat">
-                            <div class="stat-number" id="correctAnswers">0</div>
-                            <div class="stat-label">答對題數</div>
-                        </div>
-                        <div class="stat">
-                            <div class="stat-number">8</div>
-                            <div class="stat-label">回憶喚起</div>
-                        </div>
+                <div class="price-analysis">
+                    <div class="analysis-item">
+                        <strong>漲幅：</strong>
+                        <span id="priceIncrease" class="highlight-number"></span>
+                    </div>
+                    <div class="analysis-item">
+                        <strong>相當於：</strong>
+                        <span id="equivalentComparison" class="highlight-text"></span>
                     </div>
                 </div>
 
-                <div class="final-message">
-                    <p>🌟 每個物品都承載著珍貴的回憶</p>
-                    <p>💫 謝謝您與我們分享這段美好時光</p>
+                <div class="memory-story-section">
+                    <h4 class="section-title">💕 時代回憶</h4>
+                    <div class="memory-story" id="memoryStory"></div>
+                    <button class="audio-button" onclick="playMemoryStory()">🔊 聽故事</button>
                 </div>
 
-                <div class="end-buttons">
-                    <button class="big-button primary-btn" onclick="restartGame()">
-                        🔄 重新開始
-                    </button>
-                    <button class="big-button secondary-btn" onclick="showCredits()">
-                        👥 製作團隊
+                <div class="answer-actions">
+                    <button class="mega-button primary-button" onclick="continueToNext()">
+                        <span class="button-text">繼續下一個</span>
+                        <span class="button-icon">➡️</span>
                     </button>
                 </div>
             </div>
         </section>
 
-        <!-- 製作團隊 -->
-        <section id="creditsScreen" class="screen">
-            <div class="credits-content">
-                <h2>👥 製作團隊</h2>
-                <div class="credits-info">
-                    <p>🎯 專為失智症長者設計</p>
-                    <p>💡 基於認知刺激治療 (CST) 原理</p>
-                    <p>🏥 適用於長照據點活動</p>
-                    <p>🇹🇼 台灣本土化設計</p>
+        <!-- 完成畫面 -->
+        <section id="completionScreen" class="screen">
+            <div class="completion-content">
+                <div class="celebration-big">
+                    <div class="trophy-animation">🏆</div>
+                    <div class="sparkles">
+                        <span class="sparkle">✨</span>
+                        <span class="sparkle">⭐</span>
+                        <span class="sparkle">🌟</span>
+                    </div>
                 </div>
-                <button class="big-button" onclick="backToEnd()">返回</button>
+                
+                <h2>恭喜完成！</h2>
+                <p class="completion-message">您已經重溫了 12 個懷舊物品的美好回憶</p>
+                
+                <div class="final-score-card">
+                    <div class="score-summary">
+                        <div class="score-item">
+                            <div class="score-number" id="finalScore">0</div>
+                            <div class="score-label">總得分</div>
+                        </div>
+                        <div class="score-item">
+                            <div class="score-number" id="correctCount">0</div>
+                            <div class="score-label">答對題數</div>
+                        </div>
+                        <div class="score-item">
+                            <div class="score-number">12</div>
+                            <div class="score-label">回憶喚起</div>
+                        </div>
+                    </div>
+                    
+                    <div class="achievement-badge">
+                        <span id="achievementTitle">回憶大師</span>
+                        <div id="achievementDescription">您成功重溫了美好的時光</div>
+                    </div>
+                </div>
+
+                <div class="reflection-message">
+                    <h3>🌟 溫馨提醒</h3>
+                    <p>每個物品都承載著珍貴的回憶<br>感謝您與我們分享這段美好時光</p>
+                </div>
+
+                <div class="completion-actions">
+                    <button class="mega-button primary-button" onclick="restartGame()">
+                        <span class="button-text">重新開始</span>
+                        <span class="button-icon">🔄</span>
+                    </button>
+                    <button class="mega-button secondary-button" onclick="showSummary()">
+                        <span class="button-text">查看總結</span>
+                        <span class="button-icon">📋</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 總結畫面 -->
+        <section id="summaryScreen" class="screen">
+            <div class="summary-content">
+                <h2>🎯 活動總結</h2>
+                <div id="itemSummaryList" class="summary-list"></div>
+                <button class="mega-button primary-button" onclick="backToCompletion()">
+                    返回完成頁面
+                </button>
             </div>
         </section>
     </div>
 
     <!-- 音效控制 -->
-    <div class="sound-control">
-        <button id="soundToggle" class="sound-btn" onclick="toggleSound()">
+    <div class="audio-controls">
+        <button id="audioToggle" class="audio-toggle-btn" onclick="toggleAudio()">
             🔊
         </button>
+        <div class="volume-control">
+            <input type="range" id="volumeSlider" min="0" max="100" value="70" class="volume-slider">
+        </div>
     </div>
 
-    <!-- 隱藏的音效元素 -->
-    <audio id="clickSound" preload="auto">
-        <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+b2xm8gBSuF0vHZiDYIG2m98OScTgwPUarm7bllHgg2jdT2z38qBSV+zO/eizEIDmS+6OOaTAwKU6zl8bJiGgU5j9n1unsgBSuF0/HZhzYIG2m98OSbTgwOUarm7bZmHgU7k9n1vHwhBSqE0vDYhzUHGmm88OSZUA0QUqvl8LJjGgU6kdj1vXgdBSiB0O/dgzgKGGW85+OWT" type="audio/wav">
-    </audio>
-
-    <script src="script.js"></script>
+    <!-- 載入 JavaScript -->
+    <script src="gameData.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>
