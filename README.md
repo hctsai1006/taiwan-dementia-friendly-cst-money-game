@@ -18,7 +18,7 @@
 
 ## 📱 使用方式
 
-1. 開啟網頁：[https://你的用戶名.github.io/taiwan-dementia-cst-money-game/](https://你的用戶名.github.io/taiwan-dementia-cst-money-game/)
+1. 開啟網頁：[https://hctsai1006.github.io/taiwan-dementia-friendly-cst-money-game/](https://hctsai1006.github.io/taiwan-dementia-friendly-cst-money-game/)
 2. 選擇適合的難度等級
 3. 跟隨語音指引進行遊戲
 4. 享受懷舊回憶的美好時光
